@@ -1,8 +1,11 @@
 import telebot
 import datetime
+import streamlit as st
+
 
 bot = telebot.TeleBot("6171477907:AAEna8FFur3jzZheD6AIBgBZFRNTu8qMUeM")
 
+st.title("i'm a web for kidsClock tel Bot")
 print("hello")
 
 
