@@ -7,7 +7,7 @@ bot = telebot.TeleBot("6315993694:AAFqBhqI7ROH_MmD6JxDNGAcAXWqf66XfY4")
 
 @bot.message_handler(commands=['show'])
 def send_message(message):
-    bot.reply_to(message, time_message())
+    bot.reply_to(message, show_message())
 
 
 # urls
@@ -30,7 +30,7 @@ for url in url_list:
     data_list.append(requests.get(url).json())
 
 
-def time_message():
+def show_message():
     gmt_time = datetime.datetime.utcnow() + datetime.timedelta(hours=0)
 
     #   create date_list & time_list from GMT Time & offset times
@@ -58,6 +58,6 @@ def time_message():
     return message
 
 
-print(time_message(), "\n\n")
+print(show_message(), "\n\n")
 
 bot.infinity_polling()
