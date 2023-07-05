@@ -5,14 +5,9 @@ import requests
 bot = telebot.TeleBot("6315993694:AAFqBhqI7ROH_MmD6JxDNGAcAXWqf66XfY4")
 
 
-@bot.message_handler(commands=['time'])
+@bot.message_handler(commands=['show'])
 def send_message(message):
     bot.reply_to(message, time_message())
-
-
-@bot.message_handler(commands=['weather'])
-def send_message(message):
-    bot.reply_to(message, weather_message())
 
 
 # urls
@@ -38,40 +33,31 @@ for url in url_list:
 def time_message():
     gmt_time = datetime.datetime.utcnow() + datetime.timedelta(hours=0)
 
-#   create date_list & time_list from GMT Time & offset times
+    #   create date_list & time_list from GMT Time & offset times
     date_list = []
     time_list = []
     for offset in timeOffset_list:
         date_list.append((gmt_time + datetime.timedelta(hours=offset)).strftime('%A'))
         time_list.append((gmt_time + datetime.timedelta(hours=offset)).strftime('%H:%M:%S'))
 
-#   create sunrise_list & sunset_list from data_list
+    #   create sunrise_list & sunset_list from data_list
     SunRise_list = []
     SunSet_list = []
     for sun in data_list:
         SunRise_list.append(sun["currentConditions"]["sunrise"])
         SunSet_list.append(sun["currentConditions"]["sunset"])
 
-    message = ""
-    for i in range(5):
-        message = message + location_list[i] + "\n" + date_list[i] + " - " + time_list[i] + "\nSunRise: " + SunRise_list[
-            i] + "\nSunSet: " + SunSet_list[i] + "\n\n"
-    return message
-
-
-def weather_message():
     temp_list = []
     cond_list = []
     message = ""
     for i in range(5):
         temp_list.append(str(data_list[i]["currentConditions"]["temp"]))
         cond_list.append(data_list[i]["currentConditions"]["conditions"])
-        message = message + location_list[i] + "\n" + temp_list[i] + "\u00b0C\n" + cond_list[i] + "\n\n"
+        message = message + location_list[i] + "\n" + date_list[i] + " - " + time_list[i] + "\nSunRise: " + SunRise_list[i] + "\nSunSet: " + SunSet_list[i] + "\n" + temp_list[i] + "\u00b0C\n" + cond_list[i] + "\n\n"
 
     return message
 
 
 print(time_message(), "\n\n")
-print(weather_message())
 
 bot.infinity_polling()
