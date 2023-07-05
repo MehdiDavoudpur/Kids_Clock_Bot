@@ -4,77 +4,74 @@ import requests
 
 bot = telebot.TeleBot("6315993694:AAFqBhqI7ROH_MmD6JxDNGAcAXWqf66XfY4")
 
-print("hello")
-
 
 @bot.message_handler(commands=['time'])
 def send_message(message):
     bot.reply_to(message, time_message())
 
 
-@bot.message_handler(commands=['temp'])
+@bot.message_handler(commands=['weather'])
 def send_message(message):
-    bot.reply_to(message, temp_message())
+    bot.reply_to(message, weather_message())
+
+
+# urls
+SanJose_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/san%20jose?unitGroup=metric&elements=temp%2Csunrise%2Csunset%2Cconditions&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
+Belfast_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/belfast?unitGroup=metric&elements=temp%2Csunrise%2Csunset%2Cconditions&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
+Rotterdam_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/rotterdam?unitGroup=metric&elements=temp%2Csunrise%2Csunset%2Cconditions&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
+Tehran_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/tehran?unitGroup=metric&elements=temp%2Csunrise%2Csunset%2Cconditions&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
+Auckland_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/auckland?unitGroup=metric&elements=temp%2Csunrise%2Csunset%2Cconditions&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
+
+location_list = ["San Jose".upper(), "Belfast".upper(), "Rotterdam".upper(), "Tehran".upper(), "Auckland".upper()]
+
+url_list = [SanJose_url, Belfast_url, Rotterdam_url, Tehran_url, Auckland_url]
+
+timeOffset_list = [-7, 1, 2, 3.5, 12]
+
+# create data_list that contains json data type of: [temp, cond, sunrise, sunset].
+# this is outer of below functions because of its usage in both of them
+data_list = []
+for url in url_list:
+    data_list.append(requests.get(url).json())
 
 
 def time_message():
     gmt_time = datetime.datetime.utcnow() + datetime.timedelta(hours=0)
 
-    SanJose_time = gmt_time + datetime.timedelta(hours=-7)
-    SanJose_Date = SanJose_time.strftime('%A')
-    SanJose_Time = SanJose_time.strftime('%H:%M:%S')
+#   create date_list & time_list from GMT Time & offset times
+    date_list = []
+    time_list = []
+    for offset in timeOffset_list:
+        date_list.append((gmt_time + datetime.timedelta(hours=offset)).strftime('%A'))
+        time_list.append((gmt_time + datetime.timedelta(hours=offset)).strftime('%H:%M:%S'))
 
-    Belfast_time = gmt_time + datetime.timedelta(hours=1)
-    Belfast_Date = Belfast_time.strftime('%A')
-    Belfast_Time = Belfast_time.strftime('%H:%M:%S')
+#   create sunrise_list & sunset_list from data_list
+    SunRise_list = []
+    SunSet_list = []
+    for sun in data_list:
+        SunRise_list.append(sun["currentConditions"]["sunrise"])
+        SunSet_list.append(sun["currentConditions"]["sunset"])
 
-    Rotterdam_time = gmt_time + datetime.timedelta(hours=2)
-    Rotterdam_Date = Rotterdam_time.strftime('%A')
-    Rotterdam_Time = Rotterdam_time.strftime('%H:%M:%S')
+    message = ""
+    for i in range(5):
+        message = message + location_list[i] + "\n" + date_list[i] + " - " + time_list[i] + "\nSunRise: " + SunRise_list[
+            i] + "\nSunSet: " + SunSet_list[i] + "\n\n"
+    return message
 
-    Tehran_time = gmt_time + datetime.timedelta(hours=3.5)
-    Tehran_Date = Tehran_time.strftime('%A')
-    Tehran_Time = Tehran_time.strftime('%H:%M:%S')
 
-    Auckland_time = gmt_time + datetime.timedelta(hours=12)
-    Auckland_Date = Auckland_time.strftime('%A')
-    Auckland_Time = Auckland_time.strftime('%H:%M:%S')
-
-    message = "San Jose:".upper() + "\n" + SanJose_Date + "\n" + SanJose_Time + "\n\n" \
-              + "Belfast:".upper() + "\n" + Belfast_Date + "\n" + Belfast_Time + "\n\n" \
-              + "Rotterdam:".upper() + "\n" + Rotterdam_Date + "\n" + Rotterdam_Time + "\n" + "\n\n" \
-              + "Tehran:".upper() + "\n" + Tehran_Date + "\n" + Tehran_Time + "\n" + "\n\n" \
-              + "Auckland:".upper() + "\n" + Auckland_Date + "\n" + Auckland_Time
+def weather_message():
+    temp_list = []
+    cond_list = []
+    message = ""
+    for i in range(5):
+        temp_list.append(str(data_list[i]["currentConditions"]["temp"]))
+        cond_list.append(data_list[i]["currentConditions"]["conditions"])
+        message = message + location_list[i] + "\n" + temp_list[i] + "\u00b0C\n" + cond_list[i] + "\n\n"
 
     return message
 
 
-def temp_message():
-    san_jose_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/san%20jose?unitGroup=metric&elements=datetimeEpoch%2Ctemp&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
-    belfast_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/belfast?unitGroup=metric&elements=datetimeEpoch%2Ctemp&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
-    rotterdam_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/rotterdam?unitGroup=metric&elements=datetimeEpoch%2Ctemp&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
-    tehran_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/tehran?unitGroup=metric&elements=datetimeEpoch%2Ctemp&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
-    auckland_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/auckland?unitGroup=metric&elements=datetimeEpoch%2Ctemp&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
-
-    san_jose_data = requests.get(san_jose_url).json()
-    belfast_data = requests.get(belfast_url).json()
-    rotterdam_data = requests.get(rotterdam_url).json()
-    tehran_data = requests.get(tehran_url).json()
-    auckland_data = requests.get(auckland_url).json()
-
-    san_jose_temp = str(san_jose_data["currentConditions"]["temp"])
-    belfast_temp = str(belfast_data["currentConditions"]["temp"])
-    rotterdam_temp = str(rotterdam_data["currentConditions"]["temp"])
-    tehran_temp = str(tehran_data["currentConditions"]["temp"])
-    auckland_temp = str(auckland_data["currentConditions"]["temp"])
-
-    message = "San Jose:".upper() + "\n" + san_jose_temp + "\u00b0C" + "\n\n" \
-              + "Belfast:".upper() + "\n" + belfast_temp + "\u00b0C" + "\n\n" \
-              + "Rotterdam:".upper() + "\n" + rotterdam_temp + "\u00b0C" + "\n\n" \
-              + "Tehran:".upper() + "\n" + tehran_temp + "\u00b0C" + "\n\n" \
-              + "Auckland:".upper() + "\n" + auckland_temp + "\u00b0C"
-
-    return message
-
+print(time_message(), "\n\n")
+print(weather_message())
 
 bot.infinity_polling()
