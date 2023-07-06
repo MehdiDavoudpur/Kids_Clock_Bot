@@ -23,14 +23,14 @@ url_list = [SanJose_url, Belfast_url, Rotterdam_url, Tehran_url, Auckland_url]
 
 timeOffset_list = [-7, 1, 2, 3.5, 12]
 
-# create data_list that contains json data type of: [temp, cond, sunrise, sunset].
-# this is outer of below functions because of its usage in both of them
-data_list = []
-for url in url_list:
-    data_list.append(requests.get(url).json())
-
 
 def show_message():
+    # create data_list that contains json data type of: [temp, cond, sunrise, sunset].
+    # this is outer of below functions because of its usage in both of them
+    data_list = []
+    for url in url_list:
+        data_list.append(requests.get(url).json())
+
     gmt_time = datetime.datetime.utcnow() + datetime.timedelta(hours=0)
 
     #   create date_list & time_list from GMT Time & offset times
@@ -53,7 +53,9 @@ def show_message():
     for i in range(5):
         temp_list.append(str(data_list[i]["currentConditions"]["temp"]))
         cond_list.append(data_list[i]["currentConditions"]["conditions"])
-        message = message + location_list[i] + "\n" + date_list[i] + " - " + time_list[i] + "\nSunRise: " + SunRise_list[i] + "\nSunSet: " + SunSet_list[i] + "\n" + temp_list[i] + "\u00b0C\n" + cond_list[i] + "\n\n"
+        message = message + location_list[i] + "\n" + date_list[i] + " - " + time_list[i] + "\nSunRise: " + \
+                  SunRise_list[i] + "\nSunSet: " + SunSet_list[i] + "\n" + temp_list[i] + "\u00b0C\n" + cond_list[
+                      i] + "\n\n"
 
     return message
 
