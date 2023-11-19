@@ -1,7 +1,6 @@
 import datetime
 import requests
 
-
 # urls
 SanJose_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/san%20jose?unitGroup=metric&elements=temp%2Csunrise%2Csunset%2Cconditions&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
 Belfast_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/belfast?unitGroup=metric&elements=temp%2Csunrise%2Csunset%2Cconditions&include=current&key=CB93XCP3CPJN2SRCDKYZCP5TU&contentType=json"
@@ -13,8 +12,6 @@ location_list = ["San Jose".upper(), "Belfast".upper(), "Rotterdam".upper(), "Te
 
 url_list = [SanJose_url, Belfast_url, Rotterdam_url, Tehran_url, Auckland_url]
 
-timeOffset_list = [-7, 1, 2, 3.5, 12]
-
 
 def time_weather_message():
     # create data_list that contains json data type of: [temp, cond, sunrise, sunset].
@@ -22,6 +19,12 @@ def time_weather_message():
     data_list = []
     for url in url_list:
         data_list.append(requests.get(url).json())
+
+    timeOffset_list = []
+    for data in data_list:
+        timeOffset_list.append(data['tzoffset'])
+
+    print(timeOffset_list)
 
     gmt_time = datetime.datetime.utcnow() + datetime.timedelta(hours=0)
 
